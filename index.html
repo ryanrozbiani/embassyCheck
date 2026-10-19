@@ -99,8 +99,12 @@ const POSTS=[
 // Browsers block pages from reading other sites directly, so requests go through
 // public relay services. Several are tried in turn, so one being down or
 // rate-limited doesn't stop the board.
-// Served by the local script or the Cloudflare Worker? Then a same-site helper reads the embassy sites.
-const LOCAL=/^https?:$/.test(location.protocol);
+// OPTIONAL: paste your Cloudflare Worker address between the quotes, e.g. 'https://embassy-watch.yourname.workers.dev'
+// so this page reads the embassy sites through it. Leave it empty to use the free public relays.
+const HELPER='https://embassy-check.wolfinator11.workers.dev';
+const HELPER_BASE=HELPER.replace(/\/+$/,'');
+// Served by the local script or the Worker itself, or pointed at a Worker? Then use that helper.
+const LOCAL=!!HELPER_BASE||/^https?:$/.test(location.protocol);
 const RELAYS=[
  {name:'allorigins',make:u=>'https://api.allorigins.win/raw?url='+encodeURIComponent(u)},
  {name:'corsproxy',make:u=>'https://corsproxy.io/?url='+encodeURIComponent(u)},
@@ -130,7 +134,7 @@ async function relayFetch(url,start=0){
   // Running from the local helper: ask it directly. Only fall back to public relays if the helper itself stops answering.
   if(LOCAL&&!localDown){
     let res;
-    try{res=await fetch('/api/raw?url='+encodeURIComponent(url),{cache:'no-store'});
+    try{res=await fetch(HELPER_BASE+'/api/raw?url='+encodeURIComponent(url),{cache:'no-store'});
       if(!res.headers.get('x-embassy-helper')){res=null;localDown=true}}catch(e){localDown=true}
     if(res){const text=await res.text();
       // a good page comes straight back; if the site refused the helper, try the public relays below
