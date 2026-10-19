@@ -1,0 +1,231 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Embassy Watch</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--ink:#0b1118;--panel:#111a24;--panel-2:#16212d;--line:#243242;--fg:#e6edf3;--dim:#8fa1b3;--faint:#5f7184;
+--signal:#f2a33a;--hot:#ef5b4c;--warm:#f2a33a;--cool:#4f8fc9;--quiet:#3a4a5b;
+--display:"Barlow Condensed","Arial Narrow",Impact,sans-serif;--body:"IBM Plex Sans",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ink);color:var(--fg);font:15px/1.5 var(--body);padding:0 16px;
+background-image:radial-gradient(1200px 500px at 85% -10%,rgba(242,163,58,.08),transparent 60%),linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:auto,32px 32px,32px 32px}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 0 48px;display:grid;gap:22px}
+a{color:inherit}:focus-visible{outline:2px solid var(--signal);outline-offset:2px;border-radius:4px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;border-bottom:1px solid var(--line);padding-bottom:18px}
+.brand{display:grid;gap:4px;min-width:0}
+.eyebrow{font:500 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--signal);display:flex;align-items:center;gap:8px}
+.beacon{width:8px;height:8px;border-radius:50%;background:var(--signal);animation:ping 2.4s infinite}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(242,163,58,.55)}70%{box-shadow:0 0 0 10px rgba(242,163,58,0)}100%{box-shadow:0 0 0 0 rgba(242,163,58,0)}}
+h1{font:700 clamp(38px,6vw,60px)/.92 var(--display);text-transform:uppercase;margin:0}
+.sub{color:var(--dim);margin:0;max-width:62ch}
+.run{display:grid;gap:8px;justify-items:end}
+#check{font:700 18px/1 var(--display);letter-spacing:.06em;text-transform:uppercase;background:var(--signal);color:#1a1205;border:0;border-radius:8px;padding:14px 22px;cursor:pointer}
+#check:disabled{opacity:.5;cursor:progress}
+#progress{font:400 12px/1.3 var(--mono);color:var(--dim)}
+.strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.stat{background:var(--panel);padding:14px 16px;display:grid;gap:2px}
+.stat .n{font:600 34px/1 var(--display);font-variant-numeric:tabular-nums}
+.stat .l{font:500 11px/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.stat.hot .n{color:var(--hot)}.stat.warm .n{color:var(--warm)}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:500 12px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--dim);background:transparent;border:1px solid var(--line);border-radius:999px;padding:9px 13px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--signal);border-color:var(--signal);color:#1a1205}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font:400 12px/1 var(--mono);color:var(--dim)}
+.legend span{display:inline-flex;align-items:center;gap:6px}.dot{width:9px;height:9px;border-radius:2px;display:inline-block}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.post{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 16px 14px 20px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.post::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:4px;border-radius:0 3px 3px 0;background:var(--lvl,var(--quiet))}
+.post[data-lvl="hot"]{--lvl:var(--hot)}.post[data-lvl="warm"]{--lvl:var(--warm)}.post[data-lvl="cool"]{--lvl:var(--cool)}
+.post[data-lvl="loading"]::before{background:var(--signal);animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.25}}
+.post.dimmed{opacity:.42}
+.head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.who{display:grid;gap:1px;min-width:0}
+.name{font:600 22px/1.05 var(--display);text-transform:uppercase;display:flex;gap:8px;align-items:center}
+.mission{font:400 11px/1.3 var(--mono);color:var(--faint)}
+.pill{flex:none;font:500 10.5px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:5px 7px;border-radius:4px;background:var(--panel-2);color:var(--dim);border:1px solid var(--line);white-space:nowrap}
+.post[data-lvl="hot"] .pill{color:var(--hot);border-color:rgba(239,91,76,.45)}
+.post[data-lvl="warm"] .pill{color:var(--warm);border-color:rgba(242,163,58,.4)}
+.post[data-lvl="cool"] .pill{color:var(--cool);border-color:rgba(79,143,201,.4)}
+.post[data-lvl="err"] .pill{color:var(--hot)}
+.latest{display:grid;gap:4px;min-width:0}
+.latest a{font-weight:500;text-decoration:none;overflow-wrap:anywhere}.latest a:hover{text-decoration:underline}
+.when{font:400 12px/1.3 var(--mono);color:var(--dim)}
+.older{list-style:none;margin:0;padding:8px 0 0;border-top:1px dashed var(--line);display:grid;gap:6px}
+.older li{display:grid;grid-template-columns:62px 1fr;gap:8px;font-size:13px;min-width:0}
+.older .d{font:400 11.5px/1.5 var(--mono);color:var(--faint)}
+.older a{color:var(--dim);text-decoration:none;overflow-wrap:anywhere}.older a:hover{color:var(--fg)}
+.empty{color:var(--faint);font-size:13px}.err{color:#f19a90;font-size:13px}
+.links{margin-top:auto;display:flex;flex-wrap:wrap;gap:6px}
+.links a{font:500 11.5px/1 var(--mono);text-decoration:none;padding:8px 10px;border-radius:6px;border:1px solid var(--line);background:var(--panel-2)}
+.links a.primary{border-color:rgba(242,163,58,.5);color:var(--signal)}
+.retry{font:500 11.5px/1 var(--mono);padding:8px 10px;border-radius:6px;border:1px solid rgba(239,91,76,.5);background:transparent;color:var(--hot);cursor:pointer}
+.checked{font:400 10.5px/1.3 var(--mono);color:var(--faint)}
+@media (max-width:640px){.strip{grid-template-columns:repeat(2,minmax(0,1fr))}.run{justify-items:start}}
+@media (prefers-reduced-motion:reduce){.beacon,.post::before{animation:none}}
+</style></head><body><div class="wrap">
+<header><div class="brand"><div class="eyebrow"><span class="beacon"></span>U.S. missions · Middle East desk</div>
+<h1>Embassy Watch</h1><p class="sub">Latest security and demonstration alerts, read straight from 16 official U.S. embassy sites.</p></div>
+<div class="run"><button id="check">Check all 16</button><span id="progress">Ready</span></div></header>
+<section class="strip"><div class="stat hot"><span class="n" id="s48">0</span><span class="l">Posts · alert ≤ 48 h</span></div>
+<div class="stat warm"><span class="n" id="s7">0</span><span class="l">Posts · alert ≤ 7 days</span></div>
+<div class="stat"><span class="n" id="s30">0</span><span class="l">Posts · alert ≤ 30 days</span></div>
+<div class="stat"><span class="n" id="sOk">0</span><span class="l">of 16 sites read</span></div></section>
+<div class="bar"><div class="chips">
+<button class="chip" data-f="1" aria-pressed="true">Today</button><button class="chip" data-f="all" aria-pressed="false">All posts</button>
+<button class="chip" data-f="2" aria-pressed="false">Last 48 h</button><button class="chip" data-f="7" aria-pressed="false">Last 7 days</button></div>
+<div class="legend"><span><i class="dot" style="background:var(--hot)"></i>≤ 48 h</span><span><i class="dot" style="background:var(--warm)"></i>≤ 7 d</span><span><i class="dot" style="background:var(--cool)"></i>≤ 30 d</span><span><i class="dot" style="background:var(--quiet)"></i>older / none</span></div></div>
+<main class="grid" id="grid"></main></div>
+<script>
+const POSTS=[
+ {key:'jo',flag:'🇯🇴',name:'Jordan',mission:'Embassy Amman',sub:'jo'},
+ {key:'kw',flag:'🇰🇼',name:'Kuwait',mission:'Embassy Kuwait City',sub:'kw'},
+ {key:'bh',flag:'🇧🇭',name:'Bahrain',mission:'Embassy Manama',sub:'bh'},
+ {key:'om',flag:'🇴🇲',name:'Oman',mission:'Embassy Muscat',sub:'om'},
+ {key:'ae',flag:'🇦🇪',name:'UAE',mission:'Embassy Abu Dhabi · CG Dubai',sub:'ae'},
+ {key:'ir',flag:'🇮🇷',name:'Iran',mission:'Virtual Embassy Tehran',sub:'ir'},
+ {key:'sa',flag:'🇸🇦',name:'Saudi Arabia',mission:'Embassy Riyadh · CG Jeddah, Dhahran',sub:'sa'},
+ {key:'qa',flag:'🇶🇦',name:'Qatar',mission:'Embassy Doha',sub:'qa'},
+ {key:'iq',flag:'🇮🇶',name:'Iraq',mission:'Embassy Baghdad · CG Erbil',sub:'iq'},
+ {key:'il',flag:'🇮🇱',name:'Israel',mission:'Embassy Jerusalem · Branch Tel Aviv',sub:'il'},
+ {key:'lb',flag:'🇱🇧',name:'Lebanon',mission:'Embassy Beirut',sub:'lb'},
+ {key:'ye',flag:'🇾🇪',name:'Yemen',mission:'Embassy Sanaa (operating from Riyadh)',sub:'ye'},
+ {key:'eg',flag:'🇪🇬',name:'Egypt',mission:'Embassy Cairo',sub:'eg'},
+ {key:'sy',flag:'🇸🇾',name:'Syria',mission:'Embassy Damascus (operations suspended)',sub:'sy'},
+ {key:'tr',flag:'🇹🇷',name:'Türkiye',mission:'Embassy Ankara · CG Istanbul, Adana',sub:'tr'},
+ {key:'ps',flag:'🇵🇸',name:'Palestinian Affairs',mission:'Office of Palestinian Affairs, via Jerusalem',sub:'il'}
+];
+// Browsers block pages from reading other sites directly, so requests go through
+// public relay services. Several are tried in turn, so one being down or
+// rate-limited doesn't stop the board.
+// Served by the local script or the Cloudflare Worker? Then a same-site helper reads the embassy sites.
+const LOCAL=/^https?:$/.test(location.protocol);
+const RELAYS=[
+ {name:'allorigins',make:u=>'https://api.allorigins.win/raw?url='+encodeURIComponent(u)},
+ {name:'corsproxy',make:u=>'https://corsproxy.io/?url='+encodeURIComponent(u)},
+ {name:'codetabs',make:u=>'https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(u)},
+ {name:'allorigins-json',make:u=>'https://api.allorigins.win/get?url='+encodeURIComponent(u),json:true},
+ {name:'cors.eu.org',make:u=>'https://cors.eu.org/'+u}
+];
+const relayScore=RELAYS.map(()=>0); // failures push a relay to the back of the line
+let state={},filter='1',busy=false;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const safe=u=>/^https:\/\/[a-z0-9.-]+\.usembassy\.gov\//i.test(u||'')?u:null;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const DAY=864e5,age=d=>{const t=Date.parse(d);return isNaN(t)?Infinity:(Date.now()-t)/DAY};
+const sameDay=d=>{const t=Date.parse(d);if(isNaN(t))return false;const f=x=>new Date(x).toLocaleDateString('en-CA',{timeZone:'America/New_York'});return f(t)===f(Date.now())};
+const rel=d=>{const a=age(d);if(a===Infinity)return 'date unknown';if(a<1)return Math.max(1,Math.round(a*24))+' h ago';if(a<2)return 'yesterday';return Math.floor(a)+' days ago'};
+const fmt=(d,o)=>{const t=Date.parse(d);return isNaN(t)?'—':new Date(t).toLocaleDateString('en-US',o||{month:'short',day:'numeric',year:'numeric'})};
+const lvlOf=a=>a<=2?'hot':a<=7?'warm':a<=30?'cool':'quiet';
+const ALERT=/\balert\b|worldwide caution|shelter in place|ordered departure/i;
+const MONTHS='January|February|March|April|May|June|July|August|September|October|November|December';
+const titleDate=t=>{const m=(t||'').match(new RegExp('('+MONTHS+')\\s+(\\d{1,2}),?\\s+(\\d{4})','i'));return m?new Date(`${m[1]} ${m[2]}, ${m[3]} 12:00 UTC`).toISOString():null};
+
+// Hedged fetch: start one relay, and if it hasn't answered in 1.2 s start the next one too.
+// The first good answer wins and the slower requests are cancelled.
+let localDown=false;
+async function relayFetch(url,start=0){
+  // Running from the local helper: ask it directly. Only fall back to public relays if the helper itself stops answering.
+  if(LOCAL&&!localDown){
+    let res;
+    try{res=await fetch('/api/raw?url='+encodeURIComponent(url),{cache:'no-store'});
+      if(!res.headers.get('x-embassy-helper')){res=null;localDown=true}}catch(e){localDown=true}
+    if(res){const text=await res.text();
+      // a good page comes straight back; if the site refused the helper, try the public relays below
+      if(res.ok&&!/Just a moment|cf-browser-verification|Access Denied/i.test(text.slice(0,3000)))return text}
+  }
+  const order=RELAYS.map((r,i)=>i).sort((a,b)=>relayScore[a]-relayScore[b]||((a-start+RELAYS.length)%RELAYS.length)-((b-start+RELAYS.length)%RELAYS.length));
+  const ctls=[];let last='no relay answered';
+  const attempt=async(i,delay)=>{
+    await sleep(delay);
+    const r=RELAYS[i];const ctl=new AbortController();ctls.push(ctl);const t=setTimeout(()=>ctl.abort(),7000);
+    try{
+      const res=await fetch(r.make(url),{signal:ctl.signal,cache:'no-store'});
+      if(!res.ok)throw Error('HTTP '+res.status);
+      const text=r.json?(await res.json()).contents:await res.text();
+      if(!text||text.length<200)throw Error('empty reply');
+      if(/Just a moment|cf-browser-verification|Access Denied/i.test(text.slice(0,3000)))throw Error('blocked page');
+      relayScore[i]=Math.max(0,relayScore[i]-1);return text;
+    }catch(e){if(ctl.signal.aborted&&!e.message.includes('HTTP'))e=Error('timed out');relayScore[i]+=2;last=r.name+': '+e.message;throw e}
+    finally{clearTimeout(t)}
+  };
+  try{const text=await Promise.any(order.filter(i=>!RELAYS[i].local).map((i,n)=>attempt(i,n*1200)));ctls.forEach(c=>c.abort());return text}
+  catch{throw Error(last)}
+}
+function parseFeed(text){
+  const doc=new DOMParser().parseFromString(text,'application/xml');
+  if(doc.querySelector('parsererror'))throw Error('not a feed');
+  return [...doc.querySelectorAll('item')].map(it=>{
+    const title=(it.querySelector('title')?.textContent||'').trim();
+    const pub=it.querySelector('pubDate')?.textContent;const t=Date.parse(pub);
+    return {title,url:(it.querySelector('link')?.textContent||'').trim(),date:isNaN(t)?titleDate(title):new Date(t).toISOString()}});
+}
+function parseListing(text,sub){
+  const doc=new DOMParser().parseFromString(text,'text/html');const seen=new Set();const out=[];
+  doc.querySelectorAll('a[href]').forEach(a=>{
+    const href=a.getAttribute('href')||'';const title=a.textContent.trim();
+    if(!href.startsWith(`https://${sub}.usembassy.gov/`)||/\/(category|page|tag)\//.test(href))return;
+    if(!ALERT.test(title)||seen.has(href))return;seen.add(href);
+    const timeEl=a.closest('article,li,div')?.querySelector('time[datetime]');
+    const t=Date.parse(timeEl?.getAttribute('datetime'));
+    out.push({title,url:href,date:isNaN(t)?titleDate(title):new Date(t).toISOString()})});
+  return out;
+}
+const subCache={};
+async function readSite(sub,start=0){
+  if(subCache[sub])return subCache[sub];
+  const p=(async()=>{
+    const base=`https://${sub}.usembassy.gov`;const errs=[];let reached=false;
+    const tries=[[base+'/category/alert/feed/',t=>parseFeed(t)],
+                 [base+'/category/alert/',t=>parseListing(t,sub)],
+                 [base+'/feed/',t=>parseFeed(t).filter(x=>ALERT.test(x.title))]];
+    for(const [url,parse] of tries){
+      try{const items=parse(await relayFetch(url,start));reached=true;
+        if(items.length)return {ok:true,alerts:items.sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,6)}}
+      catch(e){errs.push(e.message)}
+    }
+    return reached?{ok:true,alerts:[]}:{ok:false,error:errs[errs.length-1]||'no response'};
+  })();
+  subCache[sub]=p;return p;
+}
+function render(){let c48=0,c7=0,c30=0,ok=0;
+ $('grid').innerHTML=POSTS.map(p=>{const s=state[p.key];const al=(s&&s.ok&&s.alerts)||[];const top=al[0];const a=top?age(top.date):Infinity;
+  if(s&&s.ok){ok++;if(a<=2)c48++;if(a<=7)c7++;if(a<=30)c30++}
+  let lvl='quiet',pill='Waiting',body='<div class="empty">In the queue…</div>';
+  if(!s){pill='Not checked';body='<div class="empty">Click “Check all 16”.</div>'}
+  else if(s.loading){lvl='loading';pill='Checking…';body='<div class="empty">Reading official site…</div>'}
+  else if(s.queued){}
+  else if(!s.ok){lvl='err';pill='Unreachable';body=`<div class="err">Couldn't read this site (${esc(String(s.error).slice(0,80))}). Click Retry, or use the official alerts link.</div>`}
+  else{lvl=top?lvlOf(a):'quiet';pill=top?rel(top.date):'No alerts';
+   const L=x=>{const u=safe(x.url);return u?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(x.title)}</a>`:`<span>${esc(x.title)}</span>`};
+   body=top?`<div class="latest">${L(top)}<span class="when">${fmt(top.date)}</span></div>${al.length>1?`<ul class="older">${al.slice(1,4).map(x=>`<li><span class="d">${fmt(x.date,{month:'short',day:'numeric'})}</span>${L(x)}</li>`).join('')}</ul>`:''}`:'<div class="empty">No alerts listed on the official page.</div>'}
+  const dim=filter!=='all'&&!(filter==='1'?(top&&sameDay(top.date)):a<=+filter);
+  return `<article class="post${dim?' dimmed':''}" data-lvl="${lvl}"><div class="head"><div class="who"><div class="name"><span>${p.flag}</span>${esc(p.name)}</div><div class="mission">${esc(p.mission)}</div></div><span class="pill">${esc(pill)}</span></div>${body}
+  <div class="links"><a class="primary" href="https://${p.sub}.usembassy.gov/category/alert/" target="_blank" rel="noopener">Official alerts ↗</a><a href="https://${p.sub}.usembassy.gov/" target="_blank" rel="noopener">Embassy site ↗</a>${s&&s.ok===false&&!busy?`<button class="retry" data-k="${p.key}">Retry</button>`:''}</div>
+  ${s&&s.checkedAt?`<div class="checked">${s.refreshing?'Refreshing… · ':''}Checked ${new Date(s.checkedAt).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}${s.stale?' · refresh failed, showing last result':''}</div>`:''}</article>`}).join('');
+ $('s48').textContent=c48;$('s7').textContent=c7;$('s30').textContent=c30;$('sOk').textContent=ok;
+ document.querySelectorAll('.retry').forEach(b=>b.onclick=()=>run(POSTS.filter(p=>p.key===b.dataset.k)));
+}
+async function checkOne(p){if(!state[p.key]?.ok)state[p.key]={loading:true};else state[p.key].refreshing=true;render();
+ const r=await readSite(p.sub,POSTS.indexOf(p)%RELAYS.length).catch(e=>({ok:false,error:e.message}));
+ // a failed refresh keeps the last good result instead of wiping it
+ if(!r.ok&&state[p.key]?.ok){state[p.key].refreshing=false;state[p.key].stale=true}else state[p.key]={...r,checkedAt:new Date().toISOString()};render()}
+async function run(list){
+ if(busy)return;busy=true;$('check').disabled=true;
+ list.forEach(p=>{delete subCache[p.sub]});render();
+ const q=[...list];let done=0;
+ // Eight at a time, each site starting on a different relay so no single relay gets flooded.
+ const worker=async()=>{while(q.length){const p=q.shift();await checkOne(p);done++;$('progress').textContent=`Checked ${done} of ${list.length}…`}};
+ await Promise.all(Array.from({length:LOCAL?16:8},worker));
+ save();
+ busy=false;$('check').disabled=false;render();
+ const ok=POSTS.filter(p=>state[p.key]?.ok).length;$('progress').textContent=`Done · ${ok} of 16 sites read · ${new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}`}
+$('check').onclick=()=>run(POSTS);
+document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{filter=b.dataset.f;document.querySelectorAll('.chip').forEach(x=>x.setAttribute('aria-pressed',x===b));render()});
+function save(){try{localStorage.setItem('embassyWatch',JSON.stringify({at:Date.now(),state}))}catch{}}
+try{const saved=JSON.parse(localStorage.getItem('embassyWatch')||'null');if(saved&&saved.state){for(const k in saved.state)if(saved.state[k]&&saved.state[k].checkedAt)state[k]=saved.state[k]}}catch{}
+render();run(POSTS);
+
+</script></body></html>
